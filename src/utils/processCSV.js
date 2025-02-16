@@ -1,8 +1,7 @@
 import { createReadStream, unlink } from 'node:fs';
 import csv from 'csv-parser';
-import { Database } from '../database.js';
-
-const database = new Database();
+import { randomUUID } from 'node:crypto';
+import { database } from '../database.js';
 
 export function processCSV(filePath, res) {
   const results = [];
@@ -40,10 +39,14 @@ export function processCSV(filePath, res) {
         return;
       }
 
-      // Tarefa válida
+      // Tarefa válida com os campos adicionais
       const task = {
+        id: randomUUID(),
         title: title.trim(),
         description: description.trim(),
+        completed_at: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       results.push(task);
@@ -63,8 +66,9 @@ export function processCSV(filePath, res) {
 
       // Insere todas as tarefas no banco
       results.forEach(task => database.insert('tasks', task));
+      database.reload();
 
-      // Remove o arquivo após a importação
+      // Remove o arquivo após importação
       unlink(filePath, err => {
         if (err) console.error('Erro ao deletar arquivo:', err);
         else console.log('Arquivo removido após importação.');

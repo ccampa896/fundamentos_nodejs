@@ -1,4 +1,4 @@
-import { Database } from './database.js';
+import { database } from './database.js';
 import { randomUUID } from 'node:crypto';
 import { buildRoutePath } from './utils/build-route-path.js';
 import { processCSV } from './utils/processCSV.js';
@@ -6,15 +6,13 @@ import busboy from 'busboy';
 import { createWriteStream, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-const database = new Database();
-
 export const routes = [
   {
     method: 'GET',
     path: buildRoutePath('/tasks'),
     handler: (req, res) => {
       const { search } = req.query;
-      const users = database.select(
+      const tasks = database.select(
         'tasks',
         search
           ? {
@@ -23,7 +21,7 @@ export const routes = [
             }
           : null
       );
-      return res.end(JSON.stringify(users));
+      return res.end(JSON.stringify(tasks));
     },
   },
   {
