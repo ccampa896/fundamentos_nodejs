@@ -123,11 +123,13 @@ export const routes = [
         return res.writeHead(400).end();
       }
 
-      const updatedTask = database.update('tasks', id, {
+      const data = {
         title: title,
         description: description,
-        updated_at: new Date().toISOString,
-      });
+        updated_at: new Date().toISOString(),
+      };
+
+      const updatedTask = database.update('tasks', id, data);
 
       if (!updatedTask) {
         return res.writeHead(404).end();
@@ -155,10 +157,33 @@ export const routes = [
     path: buildRoutePath('/tasks/:id/complete'),
     handler: (req, res) => {
       const { id } = req.params;
-      partialUpdatedTask = database.update('tasks', id, {
+      const partialUpdatedTask = database.update('tasks', id, {
         completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
+
+      if (!partialUpdatedTask) {
+        return res.writeHead(404).end();
+      }
+
+      return res.writeHead(204).end();
+    },
+  },
+  {
+    method: 'PATCH',
+    path: buildRoutePath('/tasks/:id/partial'),
+    handler: (req, res) => {
+      const { id } = req.params;
+      let data = req.body;
+
+      const updated_time = new Date().toISOString();
+
+      data = {
+        ...data,
+        updated_at: updated_time,
+      };
+
+      const partialUpdatedTask = database.update('tasks', id, data);
 
       if (!partialUpdatedTask) {
         return res.writeHead(404).end();

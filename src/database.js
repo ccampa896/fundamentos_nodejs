@@ -21,6 +21,7 @@ export class Database {
         await this.#persist();
         console.log('Arquivo db.json criado com sucesso.');
       } else {
+        // Outros erros: apenas loga o erro, sem sobrescrever os dados
         console.error('Erro ao ler o arquivo de banco de dados:', error);
       }
     }
@@ -61,17 +62,17 @@ export class Database {
     return data;
   }
 
-  insert(table, data) {
+  async insert(table, data) {
     if (Array.isArray(this.#database[table])) {
       this.#database[table].push(data);
     } else {
       this.#database[table] = [data];
     }
-    this.#persist();
+    await this.#persist();
     return data;
   }
 
-  update(table, id, data) {
+  async update(table, id, data) {
     const rowIndex = this.#database[table]?.findIndex(row => row.id === id);
 
     if (rowIndex > -1) {
@@ -79,18 +80,18 @@ export class Database {
         ...this.#database[table][rowIndex],
         ...data,
       };
-      this.#persist();
+      await this.#persist();
       return this.#database[table][rowIndex];
     } else {
       return false;
     }
   }
 
-  delete(table, id) {
+  async delete(table, id) {
     const rowIndex = this.#database[table].findIndex(row => row.id === id);
     if (rowIndex > -1) {
       this.#database[table].splice(rowIndex, 1);
-      this.#persist();
+      await this.#persist();
     } else {
       return false;
     }
