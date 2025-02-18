@@ -115,7 +115,7 @@ export const routes = [
   {
     method: 'PUT',
     path: buildRoutePath('/tasks/:id'),
-    handler: (req, res) => {
+    handler: async (req, res) => {
       const { id } = req.params;
       const { title, description } = req.body;
 
@@ -129,10 +129,14 @@ export const routes = [
         updated_at: new Date().toISOString(),
       };
 
-      const updatedTask = database.update('tasks', id, data);
+      const updatedTask = await database.update('tasks', id, data);
 
       if (!updatedTask) {
-        return res.writeHead(404).end();
+        return res
+          .writeHead(404, { 'Content-Type': 'application/json' })
+          .end(
+            JSON.stringify({ message: `Task com ID ${id} não localizada!` })
+          );
       }
 
       return res.writeHead(204).end();
@@ -141,12 +145,16 @@ export const routes = [
   {
     method: 'DELETE',
     path: buildRoutePath('/tasks/:id'),
-    handler: (req, res) => {
+    handler: async (req, res) => {
       const { id } = req.params;
-      const deletedTask = database.delete('tasks', id);
+      const deletedTask = await database.delete('tasks', id);
 
       if (!deletedTask) {
-        return res.writeHead(404).end();
+        return res
+          .writeHead(404, { 'Content-Type': 'application/json' })
+          .end(
+            JSON.stringify({ message: `Task com ID ${id} não localizada!` })
+          );
       }
 
       return res.writeHead(204).end();
@@ -155,15 +163,19 @@ export const routes = [
   {
     method: 'PATCH',
     path: buildRoutePath('/tasks/:id/complete'),
-    handler: (req, res) => {
+    handler: async (req, res) => {
       const { id } = req.params;
-      const partialUpdatedTask = database.update('tasks', id, {
+      const partialUpdatedTask = await database.update('tasks', id, {
         completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
 
       if (!partialUpdatedTask) {
-        return res.writeHead(404).end();
+        return res
+          .writeHead(404, { 'Content-Type': 'application/json' })
+          .end(
+            JSON.stringify({ message: `Task com ID ${id} não localizada!` })
+          );
       }
 
       return res.writeHead(204).end();
@@ -172,7 +184,7 @@ export const routes = [
   {
     method: 'PATCH',
     path: buildRoutePath('/tasks/:id/partial'),
-    handler: (req, res) => {
+    handler: async (req, res) => {
       const { id } = req.params;
       let data = req.body;
 
@@ -183,10 +195,14 @@ export const routes = [
         updated_at: updated_time,
       };
 
-      const partialUpdatedTask = database.update('tasks', id, data);
+      const partialUpdatedTask = await database.update('tasks', id, data);
 
       if (!partialUpdatedTask) {
-        return res.writeHead(404).end();
+        return res
+          .writeHead(404, { 'Content-Type': 'application/json' })
+          .end(
+            JSON.stringify({ message: `Task com ID ${id} não localizada!` })
+          );
       }
 
       return res.writeHead(204).end();
